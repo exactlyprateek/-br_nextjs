@@ -55,6 +55,7 @@
 .title,
 .description {
   text-align: center;
+  margin-left: 10px;
 }
 
 .description {
@@ -85,18 +86,19 @@
   flex-basis: 45%;
   padding: 1.5rem;
   text-align: left;
-  color: inherit;
+  color: rgba(255, 255, 255, 0.911);
   text-decoration: none;
   border: 1px solid #eaeaea;
   border-radius: 10px;
   transition: color 0.15s ease, border-color 0.15s ease;
+  background: #20b1ba;
 }
 
 .card:hover,
 .card:focus,
 .card:active {
-  color: #0070f3;
-  border-color: #0070f3;
+  color: rgb(255, 255, 255);
+  border-color: #13878f;
 }
 
 .card h3 {

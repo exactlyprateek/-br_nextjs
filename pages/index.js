@@ -1,65 +1,65 @@
-import Head from 'next/head'
-import styles from '../styles/Home.module.css'
-
+import Head from 'next/head';
+import styles from '../styles/Home.module.css';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
 export default function Home() {
-  return (
-    <div className={styles.container}>
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+	let url = 'https://bestresources.herokuapp.com/resource/';
 
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
+	const [ data, setData ] = useState(null);
+	const [ loading, setLoading ] = useState(true);
+	const [ error, setError ] = useState(null);
 
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
+	useEffect(() => {
+		const ac = new AbortController();
+		axios(url)
+			.then((response) => {
+				setData(response.data);
+			})
+			.catch((error) => {
+				console.error('Error fetching data: ', error);
+				setError(error);
+			})
+			.finally(() => {
+				setLoading(false);
+			})
+			.then(() => {
+				ac.abort();
+			});
+	});
+	if (loading) return 'Loading...';
+	if (error) return 'Error!';
+	let style = {
+		margin: '20px',
+		background: '#eeeeee',
+		textDecoration: 'none'
+	};
 
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
+	return (
+		<div className={styles.container}>
+			<Head>
+				<title>Best Resources</title>
+				<link rel="icon" href="/favicon.ico" />
+			</Head>
 
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
+			<main className={styles.main}>
+				<h1 className={styles.title}>
+					Welcome to <strong style={{color:"#20b1ba"}}>BestResources</strong>
+				</h1>
+			<div className={styles.grid}>	{data ? (
+					data.map((x) => (
+						<a href={x.link} className={styles.card} target="_blank" rel="noreferrer">
+							<h3>{x.title}</h3>
+							<p>{x.title}</p>
+						</a>
+					))
+				) : null}
+				
+					
+					
+				</div>
+			</main>
 
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
-      </footer>
-    </div>
-  )
+		
+		</div>
+	);
 }
