@@ -19,16 +19,17 @@ import {
 	Wrap,
 	Stack,
 	HStack,
-	VStack
+	VStack,
+	Center
 } from '@chakra-ui/react';
 import { ExternalLinkIcon, AddIcon } from '@chakra-ui/icons';
 export default function Dashboard() {
 	let url = 'https://bestresources.herokuapp.com/resource/';
+	// let url = 'http://localhost:8000/resource/';
 
 	const [ data, setData ] = useState(null);
 	const [ loading, setLoading ] = useState(true);
 	const [ error, setError ] = useState(null);
-
 	useEffect(() => {
 		if (!data) {
 			axios(url)
@@ -44,7 +45,8 @@ export default function Dashboard() {
 					setLoading(false);
 				});
 		}
-	});
+	}, [])
+	
 	let data1 = [
 		{
 			id: 1,
@@ -114,7 +116,19 @@ export default function Dashboard() {
 					<Text justifyContent="center" display="flex" fontSize="xxx-large" mb="8vh">
 						Loading
 					</Text>
-					<Img src="/loading.webp" w="50vh" alt="loading" />{' '}
+				<Center pb={8}>
+					<iframe
+						style={{width:"50vh"}}
+						src="https://giphy.com/embed/RHEqKwRZDwFKE"
+						frameBorder={0}
+						className="giphy-embed"
+						allowFullScreen
+					/>
+				</Center>
+					
+					<Text>Might take upto 30 seconds, API is on heroku :') </Text>
+
+					{/* <Img src="/loading.webp"  alt="loading" />{' '} */}
 				</div>
 			</div>
 		);
@@ -142,8 +156,8 @@ export default function Dashboard() {
 				</Text>
 				<SimpleGrid columns={[ 1, 2, 3 ]} spacing="40px">
 					{' '}
-					{data1 ? (
-						data1.map((x, index) => (
+					{data ? (
+						data.map((x, index) => (
 							<Box
 								colorScheme="blue"
 								_hover={{
@@ -166,7 +180,7 @@ export default function Dashboard() {
 								borderColor="gray.100"
 							>
 								<HStack alignItems="start" d="flex" mb="3">
-									<Avatar borderRadius="lg" boxSize="100px" backgroundColor="white" src={x.url} />
+									<Avatar borderRadius="lg" boxSize="100px" backgroundColor="white" src={x.image} />
 									<Box>
 										<Button
 											leftIcon={
@@ -216,7 +230,7 @@ export default function Dashboard() {
 											<ExternalLinkIcon h="2.2em" w="1.8em" mx="2px" />
 										</Link>
 										<Text style={{ fontWeight: '400' }} color="gray.500">
-											{x.desc}
+											{x.description}
 										</Text>
 									</Text>
 								</HStack>
