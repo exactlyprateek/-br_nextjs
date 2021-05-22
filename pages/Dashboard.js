@@ -8,107 +8,114 @@ import { IconContext } from 'react-icons';
 import {
 	SimpleGrid,
 	Box,
-	ButtonGroup,
 	IconButton,
 	Container,
 	Img,
 	Text,
 	Link,
 	Avatar,
-	WrapItem,
-	Wrap,
-	Stack,
 	HStack,
-	VStack,
-	Center
+	Center,
+	useDisclosure,
+	Modal,
+	ModalOverlay,
+	ModalContent,
+	ModalHeader,
+	ModalBody,
+	ModalFooter,
+	Input
 } from '@chakra-ui/react';
 import { ExternalLinkIcon, AddIcon } from '@chakra-ui/icons';
 export default function Dashboard() {
+	const { isOpen, onOpen, onClose } = useDisclosure();
+
 	let url = 'https://bestresources.herokuapp.com/resource/';
 	// let url = 'http://localhost:8000/resource/';
-
+	const [ load, setLoad ] = useState(false);
+	const [ currentObject, setCurrentObject ] = useState(null);
 	const [ data, setData ] = useState(null);
 	const [ loading, setLoading ] = useState(true);
 	const [ error, setError ] = useState(null);
+	const [ title, settitle ] = useState('');
+	const [ description, setdescription ] = useState();
+	const [ link, setlink ] = useState('');
+	const [ likes, setlikes ] = useState('');
+	const [ image, setimage ] = useState('');
+	const [ topic, settopic ] = useState('');
+	const [ id, setid ] = useState(null);
+	const [ updated, setupdated ] = useState(false);
+	const [refresh, setRefresh] = useState(true);
+	function handleClose() {
+		onClose();
+	}
+	function like(post) {
+		console.log(post);
+		axios({
+			url: url + post.id + '/',
+			method: 'PUT',
+			data: post
+		})
+			.then((res) => {
+				console.log(res);
+				setRefresh(true);
+			})
+			.catch((err) => console.log(err));
+	}
+	function handleUpdate() {
+		axios({
+			url: url + id + '/',
+			method: 'PUT',
+			data: { title, description, link, topic, id, image, likes }
+		})
+			.then((res) => {
+				console.log(res);
+				setupdated(true);
+				setLoad(false);
+			})
+			.catch((err) => console.log(err));
+	}
+	function handleEdit(id) {
+		setLoad(true);
+		onOpen();
+		axios({
+			url: url + id,
+			method: 'get'
+		})
+			.then((res) => {
+				console.log(res.data);
+				setCurrentObject(res.data);
+				settitle(res.data.title);
+				setdescription(res.data.description);
+				setlink(res.data.link);
+				setlikes(res.data.likes);
+				setimage(res.data.image);
+				settopic(res.data.topic);
+				setid(res.data.id);
+				setLoad(false);
+			})
+			.catch((err) => {
+				console.log(err);
+				setLoad(false);
+			});
+	}
 	useEffect(() => {
-		if (!data) {
+		if (refresh) {
 			axios(url)
 				.then((response) => {
 					console.log(response.data);
 					setData(response.data);
+					setLoading(false);
 				})
 				.catch((error) => {
 					console.error('Error fetching data: ', error);
 					setError(error);
-				})
-				.finally(() => {
 					setLoading(false);
 				});
+				setRefresh(false);
 		}
-	}, [])
-	
-	let data1 = [
-		{
-			id: 1,
-			title: 'W3Schools',
-			desc: 'W3Schools - Learn Web development',
-			link: 'http://w3schools.com',
-			star: true,
-			topic: 'Web Development',
-			likes: '33',
-			url: 'https://www.codedino.org/codeDinoPics/w3schoolsLogo.png'
-		},
-		{
-			id: 3,
-			title: 'Django',
-			desc: 'Django Documentation',
-			link: 'https://docs.djangoproject.com/',
-			star: false,
-			topic: 'Web Development',
-			likes: '34',
-			url: 'https://kevin-brown.com/images/django-logo.svg'
-		},
-		{
-			id: 4,
-			title: 'OOPS',
-			desc: 'Full roadmap and resources for OOPS',
-			link: 'https://whimsical.com/object-oriented-programming-cheatsheet-by-love-babbar-YbSgLatbWQ4R5paV7EgqFw',
-			star: true,
-			topic: 'OOPS',
-			likes: '67',
-			url: 'https://via.placeholder.com/100?text=No+Image'
-		},
-		{
-			id: 5,
-			title: '450 DSA',
-			desc: '450 DSA questions for placement by Love babbar (Tracker)',
-			link: 'https://450-dsa-tracker.netlify.app/',
-			star: false,
-			topic: 'DSA',
-			likes: '0',
-			url: 'https://via.placeholder.com/1000?text=No+Image'
-		},
-		{
-			id: 7,
-			title: 'Photopea',
-			desc: 'Photopea - Photoshop Alternative (web based)',
-			link: 'https://www.photopea.com/',
-			star: true,
-			topic: 'Graphic Design',
-			likes: '4',
-			url: 'https://www.photopea.com/promo/thumb256.png'
-		},
-		{
-			id: 8,
-			title: 'Devhints',
-			desc: 'Devhints - docs for almost every development framework/library',
-			link: 'https://devhints.io/',
-			star: true,
-			topic: 'Docs',
-			likes: '5',
-			url: 'https://devhints.io/assets/favicon.png'
-		}
-	];
+	}),
+		[ refresh ];
+
 	if (loading)
 		return (
 			<div style={{ justifyContent: 'center', display: 'flex', marginTop: '15vh' }}>
@@ -116,16 +123,16 @@ export default function Dashboard() {
 					<Text justifyContent="center" display="flex" fontSize="xxx-large" mb="8vh">
 						Loading
 					</Text>
-				<Center pb={8}>
-					<iframe
-						style={{width:"50vh"}}
-						src="https://giphy.com/embed/RHEqKwRZDwFKE"
-						frameBorder={0}
-						className="giphy-embed"
-						allowFullScreen
-					/>
-				</Center>
-					
+					<Center pb={8}>
+						<iframe
+							style={{ width: '50vh' }}
+							src="https://giphy.com/embed/RHEqKwRZDwFKE"
+							frameBorder={0}
+							className="giphy-embed"
+							allowFullScreen
+						/>
+					</Center>
+
 					<Text>Might take upto 30 seconds, API is on heroku :') </Text>
 
 					{/* <Img src="/loading.webp"  alt="loading" />{' '} */}
@@ -154,6 +161,81 @@ export default function Dashboard() {
 				<Text textAlign="center" my="4" fontSize="5xl" lineHeight="1.5">
 					Welcome to <strong style={{ color: '#20b1ba' }}>BestResources</strong>
 				</Text>
+				<Modal
+					style={{ fontFamily: 'Product Sans' }}
+					closeOnOverlayClick={true}
+					onClose={onClose}
+					isOpen={isOpen}
+					motionPreset="slideInBottom"
+					isCentered
+				>
+					<ModalOverlay />
+					<ModalContent>
+						<ModalHeader>Modal Title</ModalHeader>
+
+						<ModalBody>
+							{load ? (
+								<Center>Loading...</Center>
+							) : (
+								<Box>
+									<Text mb="8px">title</Text>
+									<Input
+										value={title}
+										placeholder="title"
+										size="sm"
+										onChange={(e) => settitle(e.target.value)}
+									/>
+									<Text mb="8px">description</Text>
+									<Input
+										value={description}
+										placeholder="description"
+										size="sm"
+										onChange={(e) => setdescription(e.target.value)}
+									/>
+									<Text mb="8px">link</Text>
+									<Input
+										value={link}
+										placeholder="link"
+										size="sm"
+										onChange={(e) => setlink(e.target.value)}
+									/>
+									<Text mb="8px">likes</Text>
+									<Input
+										value={likes}
+										placeholder="likes"
+										size="sm"
+										onChange={(e) => setlikes(e.target.value)}
+									/>
+									<Text mb="8px">image</Text>
+									<Input
+										value={image}
+										placeholder="image"
+										size="sm"
+										onChange={(e) => setimage(e.target.value)}
+									/>
+									<Text mb="8px">topic</Text>
+									<Input
+										value={topic}
+										placeholder="topic"
+										size="sm"
+										onChange={(e) => settopic(e.target.value)}
+									/>
+								</Box>
+							)}
+						</ModalBody>
+						<ModalFooter>
+							<Button onClick={handleUpdate} colorScheme="teal" mr="4">
+								Update
+							</Button>
+							<Button onClick={onClose}>Close</Button>
+							{updated ? (
+								<Text m="4" d="flex">
+									Updated successfully
+								</Text>
+							) : null}
+						</ModalFooter>
+					</ModalContent>
+				</Modal>
 				<SimpleGrid columns={[ 1, 2, 3 ]} spacing="40px">
 					{' '}
 					{data ? (
@@ -180,51 +262,53 @@ export default function Dashboard() {
 								borderColor="gray.100"
 							>
 								<HStack alignItems="start" d="flex" mb="3">
+									{/* <Box>{x.id}</Box> */}
 									<Avatar borderRadius="lg" boxSize="100px" backgroundColor="white" src={x.image} />
-									<Box>
-										<Button
-											leftIcon={
+
+									<Button
+										onClick={(e) => like({ id: x.id, link: x.link, likes: x.likes + 1 })}
+										leftIcon={
+											<IconContext.Provider
+												value={{
+													size: '28px'
+												}}
+											>
+												<div>
+													<AiOutlineHeart />
+												</div>
+											</IconContext.Provider>
+										}
+										colorScheme="teal"
+										variant="solid"
+										pl="2"
+									>
+										{x.likes}
+									</Button>
+									{x.star ? (
+										<IconButton
+											icon={
 												<IconContext.Provider
 													value={{
 														size: '28px'
 													}}
 												>
 													<div>
-														<AiOutlineHeart />
+														<AiOutlineStar />
 													</div>
 												</IconContext.Provider>
 											}
-											colorScheme="teal"
-											variant="solid"
-											pl="2"
-										>
-											{x.likes}
-										</Button>
-										{x.star ? (
-											<IconButton
-												icon={
-													<IconContext.Provider
-														value={{
-															size: '28px'
-														}}
-													>
-														<div>
-															<AiOutlineStar />
-														</div>
-													</IconContext.Provider>
-												}
-												colorScheme="orange"
-												variant="outline"
-												right="5px"
-												ml="1rem"
-												p="2.5"
-												_last="true"
-											/>
-										) : null}
-									</Box>
+											colorScheme="orange"
+											variant="outline"
+											right="5px"
+											ml="1rem"
+											p="2.5"
+											_last="true"
+										/>
+									) : null}
+									<Button onClick={(e) => handleEdit(x.id)}>Edit</Button>
 								</HStack>
 								<HStack mb="3">
-									<Text style={{ fontWeight: '700' }}>
+									<div style={{ fontWeight: '700' }}>
 										{x.title}{' '}
 										<Link key={index} target="_blank" rel="noreferrer" href={x.link} isExternal>
 											<ExternalLinkIcon h="2.2em" w="1.8em" mx="2px" />
@@ -232,7 +316,7 @@ export default function Dashboard() {
 										<Text style={{ fontWeight: '400' }} color="gray.500">
 											{x.description}
 										</Text>
-									</Text>
+									</div>
 								</HStack>
 								<HStack>
 									<Box border="2px" borderColor="teal.200" px="2" borderRadius="full">
